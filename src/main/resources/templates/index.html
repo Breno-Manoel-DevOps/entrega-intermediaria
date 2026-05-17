@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>CEP Finder — Bootcamp Etapa 2</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 48px 40px;
+            width: 100%;
+            max-width: 520px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #e94560;
+            letter-spacing: -0.5px;
+        }
+
+        .logo p {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.85rem;
+            margin-top: 6px;
+        }
+
+        .form-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 14px 18px;
+            border: 2px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            outline: none;
+            transition: border-color .2s;
+        }
+
+        input[type="text"]::placeholder { color: rgba(255,255,255,0.35); }
+        input[type="text"]:focus { border-color: #e94560; }
+
+        button {
+            padding: 14px 22px;
+            background: #e94560;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .2s, transform .1s;
+            white-space: nowrap;
+        }
+
+        button:hover  { background: #c73652; }
+        button:active { transform: scale(0.97); }
+
+        /* ── Resultado ── */
+        .result {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 14px;
+            padding: 24px;
+            animation: fadeIn .3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .result h2 {
+            color: #4cc9f0;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 16px;
+        }
+
+        .field {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            gap: 12px;
+        }
+
+        .field:last-child { border-bottom: none; }
+
+        .field .label {
+            color: rgba(255,255,255,0.45);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            flex-shrink: 0;
+        }
+
+        .field .value {
+            color: #fff;
+            font-size: 0.95rem;
+            text-align: right;
+            font-weight: 500;
+        }
+
+        .cep-badge {
+            display: inline-block;
+            background: #e94560;
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        /* ── Erro ── */
+        .error-box {
+            background: rgba(233,69,96,0.15);
+            border: 1px solid rgba(233,69,96,0.4);
+            border-radius: 12px;
+            padding: 16px 20px;
+            color: #ff8099;
+            font-size: 0.9rem;
+            animation: fadeIn .3s ease;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 28px;
+            color: rgba(255,255,255,0.25);
+            font-size: 0.75rem;
+        }
+
+        .footer a {
+            color: #4cc9f0;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="logo">
+            <h1>📍 CEP Finder</h1>
+            <p>Consulta de endereços via ViaCEP · Bootcamp Etapa 2</p>
+        </div>
+
+        <form action="/buscar" method="get" class="form-group">
+            <input
+                type="text"
+                name="cep"
+                placeholder="Ex: 01310-100"
+                maxlength="9"
+                th:value="${cep}"
+                autocomplete="off"
+                required
+            />
+            <button type="submit">Buscar</button>
+        </form>
+
+        <!-- Resultado -->
+        <div class="result" th:if="${endereco != null}">
+            <h2>Endereço encontrado</h2>
+
+            <div class="field">
+                <span class="label">CEP</span>
+                <span class="value"><span class="cep-badge" th:text="${endereco.cep}"></span></span>
+            </div>
+            <div class="field" th:if="${endereco.logradouro != null and !#strings.isEmpty(endereco.logradouro)}">
+                <span class="label">Logradouro</span>
+                <span class="value" th:text="${endereco.logradouro}"></span>
+            </div>
+            <div class="field" th:if="${endereco.complemento != null and !#strings.isEmpty(endereco.complemento)}">
+                <span class="label">Complemento</span>
+                <span class="value" th:text="${endereco.complemento}"></span>
+            </div>
+            <div class="field" th:if="${endereco.bairro != null and !#strings.isEmpty(endereco.bairro)}">
+                <span class="label">Bairro</span>
+                <span class="value" th:text="${endereco.bairro}"></span>
+            </div>
+            <div class="field">
+                <span class="label">Cidade / UF</span>
+                <span class="value" th:text="${endereco.localidade + ' / ' + endereco.uf}"></span>
+            </div>
+            <div class="field" th:if="${endereco.ddd != null and !#strings.isEmpty(endereco.ddd)}">
+                <span class="label">DDD</span>
+                <span class="value" th:text="'(' + ${endereco.ddd} + ')'"></span>
+            </div>
+            <div class="field" th:if="${endereco.ibge != null and !#strings.isEmpty(endereco.ibge)}">
+                <span class="label">Cód. IBGE</span>
+                <span class="value" th:text="${endereco.ibge}"></span>
+            </div>
+        </div>
+
+        <!-- Erro -->
+        <div class="error-box" th:if="${erro != null}">
+            ⚠️ <span th:text="${erro}"></span>
+        </div>
+
+        <div class="footer">
+            API externa: <a href="https://viacep.com.br" target="_blank">viacep.com.br</a>
+            &nbsp;·&nbsp;
+            <a href="/api/cep/01310100" target="_blank">REST JSON ↗</a>
+        </div>
+    </div>
+</body>
+</html>
