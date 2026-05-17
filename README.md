@@ -1,12 +1,6 @@
-# 📍 CEP Finder — Bootcamp Etapa 2
+# 📍 CEP Finder 
 
-> **🌐 Deploy:** [https://cep-finder.onrender.com](https://cep-finder.onrender.com) ← _cole aqui o link após o deploy_
-
-[![CI](https://github.com/SEU_USUARIO/cep-finder/actions/workflows/ci.yml/badge.svg?branch=entrega-intermediaria)](https://github.com/SEU_USUARIO/cep-finder/actions)
-[![Java](https://img.shields.io/badge/Java-17-007396?logo=java)](https://www.oracle.com/java/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2-6DB33F?logo=springboot)](https://spring.io/projects/spring-boot)
-
----
+> **🌐 Deploy:** [https://cep-finder.onrender.com](https://entrega-intermediaria.onrender.com)
 
 ## 🎯 Sobre o Projeto
 
@@ -150,17 +144,6 @@ cep-finder/
 
 ---
 
-## ☁️ Deploy (Render.com)
-
-1. Crie conta em [render.com](https://render.com)
-2. Clique em **New → Web Service**
-3. Conecte seu repositório GitHub
-4. O Render detecta o `render.yaml` automaticamente
-5. Clique em **Deploy** e aguarde (~5 min)
-6. Copie a URL gerada e cole no topo deste README
-
----
-
 ## 📋 Issue e Branch
 
 - Issue criada: `#1 — Integração com API ViaCEP`
@@ -171,6 +154,6 @@ cep-finder/
 
 ## 🔗 Links
 
-- **Aplicação:** https://cep-finder.onrender.com
+- **Aplicação:** https://entrega-intermediaria.onrender.com
 - **API ViaCEP:** https://viacep.com.br
-- **Repositório:** https://github.com/SEU_USUARIO/cep-finder
+- **Repositório:** https://github.com/Breno-Manoel-DevOps/entrega-intermediaria#
