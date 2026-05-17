@@ -6,17 +6,20 @@ on:
   pull_request:
     branches: [ main, master ]
 
+permissions:
+  contents: read      # necessário para ler o código
+  checks: write       # necessário para criar check runs (relatórios)
+  pull-requests: write # necessário para comentar em PRs
+
 jobs:
   build-and-test:
     name: Build e Testes (Java 17)
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout do código
       - name: Checkout repositório
         uses: actions/checkout@v4
 
-      # 2. Configurar JDK 17
       - name: Configurar JDK 17
         uses: actions/setup-java@v4
         with:
@@ -24,11 +27,9 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      # 3. Build + Testes (inclui testes de integração)
       - name: Build e execução dos testes
         run: mvn --batch-mode --no-transfer-progress verify
 
-      # 4. Publicar relatório de testes (visível na aba Actions)
       - name: Publicar relatório de testes
         uses: dorny/test-reporter@v1
         if: always()
@@ -38,7 +39,6 @@ jobs:
           reporter: java-junit
           fail-on-error: false
 
-      # 5. Upload do JAR como artefato
       - name: Upload do JAR
         uses: actions/upload-artifact@v4
         if: success()
