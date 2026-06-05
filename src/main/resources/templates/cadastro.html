@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Cadastro — CEP Finder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 40px 36px;
+            width: 100%;
+            max-width: 560px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #e94560;
+            letter-spacing: -0.5px;
+        }
+
+        .logo p {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.85rem;
+            margin-top: 6px;
+        }
+
+        /* ── Form ── */
+        .form-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-row {
+            display: grid;
+            gap: 12px;
+        }
+
+        .form-row.two-cols { grid-template-columns: 1fr 1fr; }
+        .form-row.cep-row  { grid-template-columns: 1fr auto; }
+        .form-row.addr-row { grid-template-columns: 2fr 1fr; }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field label {
+            color: rgba(255,255,255,0.55);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .field input,
+        .field select {
+            padding: 12px 16px;
+            border: 2px solid rgba(255,255,255,0.12);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.06);
+            color: #fff;
+            font-size: 0.95rem;
+            font-family: inherit;
+            outline: none;
+            transition: border-color .2s, background .2s;
+            width: 100%;
+        }
+
+        .field input::placeholder { color: rgba(255,255,255,0.3); }
+        .field input:focus { border-color: #e94560; background: rgba(255,255,255,0.1); }
+
+        .field select {
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .field select option {
+            background: #16213e;
+            color: #fff;
+        }
+
+        /* ── Botões ── */
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background .2s, transform .1s, box-shadow .2s;
+            white-space: nowrap;
+        }
+
+        .btn:active { transform: scale(0.97); }
+
+        .btn-primary {
+            background: #e94560;
+            color: #fff;
+            width: 100%;
+            padding: 14px;
+            font-size: 1rem;
+            box-shadow: 0 4px 20px rgba(233, 69, 96, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #c73652;
+            box-shadow: 0 6px 24px rgba(233, 69, 96, 0.45);
+        }
+
+        .btn-cep {
+            background: rgba(76, 201, 240, 0.15);
+            color: #4cc9f0;
+            border: 1px solid rgba(76, 201, 240, 0.3);
+            align-self: end;
+            height: 45px;
+        }
+
+        .btn-cep:hover {
+            background: rgba(76, 201, 240, 0.25);
+            border-color: rgba(76, 201, 240, 0.5);
+        }
+
+        .btn-cep:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* ── Seção Endereço ── */
+        .section-divider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 8px 0 4px;
+        }
+
+        .section-divider span {
+            color: rgba(255,255,255,0.4);
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+
+        .section-divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* ── Mensagens ── */
+        .alert {
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            animation: fadeIn .3s ease;
+        }
+
+        .alert-success {
+            background: rgba(0, 230, 118, 0.12);
+            border: 1px solid rgba(0, 230, 118, 0.3);
+            color: #69f0ae;
+        }
+
+        .alert-error {
+            background: rgba(233, 69, 96, 0.12);
+            border: 1px solid rgba(233, 69, 96, 0.3);
+            color: #ff8099;
+        }
+
+        .field-error {
+            color: #ff8099;
+            font-size: 0.75rem;
+            margin-top: -2px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Footer ── */
+        .footer {
+            text-align: center;
+            margin-top: 24px;
+            color: rgba(255,255,255,0.25);
+            font-size: 0.78rem;
+        }
+
+        .footer a {
+            color: #4cc9f0;
+            text-decoration: none;
+            transition: color .2s;
+        }
+
+        .footer a:hover { color: #e94560; }
+
+        /* ── Spinner no botão CEP ── */
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(76, 201, 240, 0.3);
+            border-top-color: #4cc9f0;
+            border-radius: 50%;
+            animation: spin .6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 500px) {
+            .form-row.two-cols,
+            .form-row.cep-row,
+            .form-row.addr-row {
+                grid-template-columns: 1fr;
+            }
+
+            .card { padding: 28px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="logo">
+            <h1>📋 Cadastro</h1>
+            <p>Preencha seus dados para se cadastrar</p>
+        </div>
+
+        <!-- Mensagem de sucesso -->
+        <div class="alert alert-success" th:if="${sucesso}" style="margin-bottom: 20px;">
+            ✅ <span th:text="${sucesso}"></span>
+        </div>
+
+        <!-- Mensagem de erro geral -->
+        <div class="alert alert-error" th:if="${erro}" style="margin-bottom: 20px;">
+            ⚠️ <span th:text="${erro}"></span>
+        </div>
+
+        <form th:action="@{/cadastro}" th:object="${usuario}" method="post" class="form-grid" id="cadastroForm">
+
+            <!-- Nome -->
+            <div class="field">
+                <label for="nome">Nome completo</label>
+                <input type="text" id="nome" th:field="*{nome}" placeholder="Seu nome" required/>
+                <span class="field-error" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></span>
+            </div>
+
+            <!-- Email + Senha -->
+            <div class="form-row two-cols">
+                <div class="field">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" th:field="*{email}" placeholder="email@exemplo.com" required/>
+                    <span class="field-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
+                </div>
+                <div class="field">
+                    <label for="senha">Senha</label>
+                    <input type="password" id="senha" th:field="*{senha}" placeholder="Mínimo 6 caracteres" minlength="6" required/>
+                    <span class="field-error" th:if="${#fields.hasErrors('senha')}" th:errors="*{senha}"></span>
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <div class="section-divider">
+                <span>📍 Endereço</span>
+            </div>
+
+            <!-- CEP + Botão buscar -->
+            <div class="form-row cep-row">
+                <div class="field">
+                    <label for="cep">CEP</label>
+                    <input type="text" id="cep" th:field="*{cep}" placeholder="00000-000" maxlength="9"/>
+                </div>
+                <button type="button" class="btn btn-cep" id="btnBuscarCep" onclick="buscarCep()">
+                    Buscar CEP
+                </button>
+            </div>
+
+            <!-- Logradouro + Complemento -->
+            <div class="form-row addr-row">
+                <div class="field">
+                    <label for="logradouro">Logradouro</label>
+                    <input type="text" id="logradouro" th:field="*{logradouro}" placeholder="Rua, avenida..."/>
+                </div>
+                <div class="field">
+                    <label for="complemento">Complemento</label>
+                    <input type="text" id="complemento" th:field="*{complemento}" placeholder="Apto, bloco..."/>
+                </div>
+            </div>
+
+            <!-- Bairro -->
+            <div class="field">
+                <label for="bairro">Bairro</label>
+                <input type="text" id="bairro" th:field="*{bairro}" placeholder="Bairro"/>
+            </div>
+
+            <!-- Cidade + UF -->
+            <div class="form-row two-cols">
+                <div class="field">
+                    <label for="localidade">Cidade</label>
+                    <input type="text" id="localidade" th:field="*{localidade}" placeholder="Cidade"/>
+                </div>
+                <div class="field">
+                    <label for="uf">UF</label>
+                    <select id="uf" th:field="*{uf}">
+                        <option value="">Selecione</option>
+                        <option value="AC">AC</option><option value="AL">AL</option>
+                        <option value="AP">AP</option><option value="AM">AM</option>
+                        <option value="BA">BA</option><option value="CE">CE</option>
+                        <option value="DF">DF</option><option value="ES">ES</option>
+                        <option value="GO">GO</option><option value="MA">MA</option>
+                        <option value="MT">MT</option><option value="MS">MS</option>
+                        <option value="MG">MG</option><option value="PA">PA</option>
+                        <option value="PB">PB</option><option value="PR">PR</option>
+                        <option value="PE">PE</option><option value="PI">PI</option>
+                        <option value="RJ">RJ</option><option value="RN">RN</option>
+                        <option value="RS">RS</option><option value="RO">RO</option>
+                        <option value="RR">RR</option><option value="SC">SC</option>
+                        <option value="SP">SP</option><option value="SE">SE</option>
+                        <option value="TO">TO</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn btn-primary">Cadastrar</button>
+        </form>
+
+        <div class="footer">
+            <a href="/">← Voltar ao CEP Finder</a>
+            &nbsp;·&nbsp;
+            <a href="/api/usuarios" target="_blank">API Usuários ↗</a>
+        </div>
+    </div>
+
+    <script>
+        async function buscarCep() {
+            const cepInput = document.getElementById('cep');
+            const btn = document.getElementById('btnBuscarCep');
+            const cep = cepInput.value.replace(/\D/g, '');
+
+            if (cep.length !== 8) {
+                cepInput.style.borderColor = '#e94560';
+                cepInput.focus();
+                setTimeout(() => cepInput.style.borderColor = '', 2000);
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span>';
+
+            try {
+                const response = await fetch('/api/cep/' + cep);
+
+                if (!response.ok) {
+                    throw new Error('CEP não encontrado');
+                }
+
+                const data = await response.json();
+                document.getElementById('logradouro').value  = data.logradouro || '';
+                document.getElementById('complemento').value = data.complemento || '';
+                document.getElementById('bairro').value      = data.bairro || '';
+                document.getElementById('localidade').value  = data.localidade || '';
+
+                const ufSelect = document.getElementById('uf');
+                if (data.uf) {
+                    ufSelect.value = data.uf;
+                }
+
+                // Flash verde no CEP
+                cepInput.style.borderColor = '#69f0ae';
+                setTimeout(() => cepInput.style.borderColor = '', 2000);
+            } catch (err) {
+                cepInput.style.borderColor = '#e94560';
+                setTimeout(() => cepInput.style.borderColor = '', 2000);
+                alert('CEP não encontrado ou inválido.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Buscar CEP';
+            }
+        }
+
+        // Auto-buscar CEP ao digitar 8+ dígitos
+        document.getElementById('cep').addEventListener('input', function () {
+            const cep = this.value.replace(/\D/g, '');
+            if (cep.length === 8) {
+                buscarCep();
+            }
+        });
+    </script>
+</body>
+</html>
