@@ -1,0 +1,8 @@
+# render.yaml — Deploy via Docker (evita detecção errada como Node.js)
+services:
+  - type: web
+    name: cep-finder
+    runtime: docker
+    plan: free
+    healthCheckPath: /actuator/health
+    autoDeploy: true
