@@ -55,6 +55,28 @@ mvn spring-boot:run
 open http://localhost:8080
 ```
 
+## ☁️ Deploy no Render com banco Supabase (passo-a-passo)
+
+1. Crie um projeto no Supabase e anote as credenciais (host, porta, database, usuário, senha). Use a connection string JDBC com `?sslmode=require`.
+
+2. No Render, crie um novo `Web Service` conectando seu repositório GitHub e escolha o branch `entrega-intermediaria`.
+
+3. Deixe `Runtime` como `Docker` (o `render.yaml` + `Dockerfile` já estão configurados).
+
+4. Em `Environment` → `Environment Variables`, adicione as variáveis (marque como secret onde aplicável):
+
+  - `SPRING_DATASOURCE_URL` = `jdbc:postgresql://<HOST>:<PORT>/postgres?sslmode=require`
+  - `SPRING_DATASOURCE_USERNAME` = `<SEU_USUARIO>`
+  - `SPRING_DATASOURCE_PASSWORD` = `<SUA_SENHA>`
+
+  Observação: o arquivo `render.yaml` contém placeholders para estas chaves para facilitar deploy automático; não comite credenciais.
+
+5. Ative `Auto Deploy` (opcional) para que cada push ao branch gere novo deploy.
+
+6. Após o deploy, verifique o endpoint de saúde: `https://<sua-app>.onrender.com/actuator/health`.
+
+Se quiser, eu posso criar um `README.deploy.md` com capturas e comandos prontos para colar no painel do Render.
+
 ### Rodar os Testes
 ```bash
 mvn verify
